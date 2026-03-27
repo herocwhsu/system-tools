@@ -1,0 +1,28 @@
+# --- SHARED ALIASES ---
+
+# General
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias cls='clear'
+
+# Git
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gd='git diff'
+alias gb='git branch'
+
+# Tmux
+alias ta='tmux attach -t'
+alias tn='tmux new -s'
+alias tl='tmux ls'
+
+# AWS
+alias awssso='aws sso login --sso-session vivotek'
+alias awskey='function _awskey() { eval `aws configure export-credentials --format env --profile $1` }; _awskey'
+alias awswho='aws sts get-caller-identity; aws iam list-account-aliases'
+
+# Gemini
+alias gemini-cli='gemini'

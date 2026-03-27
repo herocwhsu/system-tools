@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # MASTER Installation Script for system-tools
-# Supports both macOS and Linux (Ubuntu/Debian)
+# Supports both macOS (Zsh) and Linux (Bash/Zsh)
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotfiles"
 OLD_DOTFILES_DIR="$HOME/.dotfiles_old"
-FILES="zshrc tmux.conf gitconfig vimrc editorconfig"
+FILES="zshrc bashrc tmux.conf gitconfig vimrc editorconfig"
 
 echo "🚀 Starting system-tools setup..."
 
@@ -26,40 +26,33 @@ echo "📦 Backing up old dotfiles to $OLD_DOTFILES_DIR"
 mkdir -p "$OLD_DOTFILES_DIR"
 
 for file in $FILES; do
-    if [ -L "$HOME/.$file" ]; then
-        rm "$HOME/.$file"
-    elif [ -e "$HOME/.$file" ]; then
-        mv "$HOME/.$file" "$OLD_DOTFILES_DIR/"
+    # Link name in home directory (needs the dot)
+    link_name="$HOME/.$file"
+    
+    if [ -L "$link_name" ]; then
+        rm "$link_name"
+    elif [ -e "$link_name" ]; then
+        mv "$link_name" "$OLD_DOTFILES_DIR/"
     fi
     
     # Create new symlink
     echo "🔗 Linking .$file"
-    ln -s "$DOTFILES_DIR/$file" "$HOME/.$file"
+    ln -s "$DOTFILES_DIR/$file" "$link_name"
 done
 
 # 3. Optimize System (Performance & Security)
 optimize_system() {
     echo "⚡ Tuning system for server-like performance..."
     if [ "$OS" == "mac" ]; then
-        # Mac Performance Tuning
         echo "🍎 Applying Mac optimizations..."
-        # Increase File Limits
         sudo sysctl -w kern.maxfiles=524288 &>/dev/null
         sudo sysctl -w kern.maxfilesperproc=524288 &>/dev/null
-        
-        # Disable Sleep (Server Mode)
         sudo pmset -a sleep 0
         sudo pmset -a hibernatemode 0
-        
-        # Security: Enable Firewall
         sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on &>/dev/null
-        
     elif [ "$OS" == "linux" ]; then
-        # Linux Performance Tuning (requires root)
         echo "🐧 Applying Linux optimizations..."
-        # Tune Swappiness (Use RAM more, Swap less)
         sudo sysctl -w vm.swappiness=10
-        # Increase File Limits
         echo "* soft nofile 65536" | sudo tee -a /etc/security/limits.conf
         echo "* hard nofile 65536" | sudo tee -a /etc/security/limits.conf
     fi
@@ -67,7 +60,6 @@ optimize_system() {
 
 # 4. OS-Specific Setup
 if [ "$OS" == "mac" ]; then
-    # Homebrew Setup
     if ! command -v brew &> /dev/null; then
         echo "🍺 Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -77,11 +69,10 @@ if [ "$OS" == "mac" ]; then
     optimize_system
 
 elif [ "$OS" == "linux" ]; then
-    # Run your existing Linux setup script
     echo "📦 Running Linux setup script..."
     bash "$(dirname "${BASH_SOURCE[0]}")/linux/setup.sh"
     optimize_system
 fi
 
 echo "✅ system-tools installation complete!"
-echo "🔄 Please restart your shell or run: source ~/.zshrc"
+echo "🔄 Please restart your shell (source ~/.zshrc or source ~/.bashrc)"

@@ -1,45 +1,38 @@
-# --- 1. CORE PATHS & ENV ---
+# --- 1. CORE PATHS ---
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
-# OS & Architecture Specific Setup
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # Homebrew Setup (Mac)
-    if [[ $(uname -m) == "arm64" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Linux specific settings
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Go
+[ -d "$HOME/go/bin" ] && export PATH="$HOME/go/bin:$PATH"
+
+# Volta
+if [ -d "$HOME/.volta/bin" ]; then
+    export VOLTA_HOME="$HOME/.volta"
+    export PATH="$VOLTA_HOME/bin:$PATH"
 fi
 
-# Tool Paths
-[ -d "$HOME/go/bin" ] && export PATH="$HOME/go/bin:$PATH"
-[ -d "$HOME/.volta/bin" ] && export VOLTA_HOME="$HOME/.volta" && export PATH="$VOLTA_HOME/bin:$PATH"
+# Pyenv
 if [ -d "$HOME/.pyenv" ]; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init --path 2>/dev/null)"
     eval "$(pyenv init - 2>/dev/null)"
 fi
+
+# Windsurf / Codeium
 [ -d "$HOME/.codeium/windsurf/bin" ] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 
-# --- 2. ZSH FEATURES ---
+# --- 2. BASH SPECIFIC ---
 # History
 HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE=~/.zsh_history
-setopt APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS
-
-# Zsh Completion
-fpath=($fpath /opt/homebrew/share/zsh/site-functions)
-autoload -Uz compinit && compinit
+HISTFILESIZE=20000
+HISTCONTROL=ignoreboth
+shopt -s histappend
 
 # --- 3. ALIASES & FUNCTIONS ---
-# Load shared aliases (pointing to the shared dotfiles folder)
+# Load shared aliases
+# Find the directory of this script
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[[ -f "$DOTFILES_DIR/aliases" ] ] && source "$DOTFILES_DIR/aliases"
+[ -f "$DOTFILES_DIR/aliases" ] && source "$DOTFILES_DIR/aliases"
 
 # NVM (Lazy Load)
 export NVM_DIR="$HOME/.nvm"
@@ -49,6 +42,7 @@ nvm() {
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   nvm "$@"
 }
+
 node() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; node "$@" }
 npm() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; npm "$@" }
 npx() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; npx "$@" }
@@ -56,7 +50,4 @@ gemini() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || n
 gemini_cli() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; gemini "$@" }
 
 # --- 4. LOCAL CONFIG (SECRETS) ---
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-
-# iTerm2 Integration
-test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_integration.zsh" || true
+[[ -f ~/.bashrc.local ]] && source ~/.bashrc.local
