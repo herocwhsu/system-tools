@@ -66,7 +66,12 @@ optimize_system() {
 }
 
 # 4. OS-Specific Setup
-...
+if [ "$OS" == "mac" ]; then
+    # Homebrew Setup
+    if ! command -v brew &> /dev/null; then
+        echo "🍺 Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
     echo "📦 Installing Mac packages from Brewfile..."
     brew bundle --file="$(dirname "${BASH_SOURCE[0]}")/mac/Brewfile"
     optimize_system

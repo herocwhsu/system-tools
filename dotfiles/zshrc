@@ -1,58 +1,55 @@
-# Volta (managed by robots)
-if [ -d "$HOME/.volta/bin" ] && [[ ":$PATH:" != *":$HOME/.volta/bin:"* ]]; then
-  export VOLTA_HOME="$HOME/.volta"
-  export PATH="$VOLTA_HOME/bin:$PATH"
+# --- 1. CORE PATHS & ENV ---
+# Ensure basic system paths are first
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+# OS & Architecture Specific Setup
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Homebrew Setup (Mac)
+    if [[ $(uname -m) == "arm64" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux specific settings
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 fi
 
-# 加載補全功能
-fpath=($fpath /opt/homebrew/share/zsh/site-functions)
+# --- 2. TOOL PATHS (Safe checks) ---
+# Go
+[ -d "$HOME/go/bin" ] && export PATH="$HOME/go/bin:$PATH"
 
-autoload -Uz compinit
-compinit
+# Volta
+if [ -d "$HOME/.volta/bin" ]; then
+    export VOLTA_HOME="$HOME/.volta"
+    export PATH="$VOLTA_HOME/bin:$PATH"
+fi
 
-# history size
-HISTSIZE=10000      # Increase history size
+# Pyenv
+if [ -d "$HOME/.pyenv" ]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path 2>/dev/null)"
+    eval "$(pyenv init - 2>/dev/null)"
+fi
+
+# Windsurf / Codeium
+[ -d "$HOME/.codeium/windsurf/bin" ] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+
+# --- 3. SHELL FEATURES ---
+# History
+HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
+setopt APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS
 
-# History options
-setopt APPEND_HISTORY       # Append to history file, don't overwrite
-setopt SHARE_HISTORY        # Share history between sessions
-setopt HIST_IGNORE_DUPS     # Ignore immediate duplicates
-setopt HIST_IGNORE_ALL_DUPS # Remove older duplicates
-setopt HIST_REDUCE_BLANKS   # Remove extra blanks
+# Zsh Completion
+fpath=($fpath /opt/homebrew/share/zsh/site-functions)
+autoload -Uz compinit && compinit
 
-# General Aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias cls='clear'
-
-# Git Aliases
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gd='git diff'
-alias gb='git branch'
-
-# Tmux Aliases
-alias ta='tmux attach -t'
-alias tn='tmux new -s'
-alias tl='tmux ls'
-
-export DOCKER_HOST=unix:///Users/herohsu/.colima/default/docker.sock
-# 添加 Go 路徑到 $PATH
-export PATH="$HOME/.volta/bin:$PATH"
-export PATH="/Users/herohsu/go/bin:$PATH"
-export PATH="/opt/homebrew/bin:$PATH"
-
-
-#eval $(colima docker-env)
-
-test -e /Users/herohsu/.iterm2_shell_integration.zsh && source /Users/herohsu/.iterm2_shell_integration.zsh || true
-export CPPFLAGS="-I/opt/homebrew/opt/openjdk/include"
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+# --- 4. ALIASES & FUNCTIONS ---
+# Load modular aliases if they exist
+[[ -f ~/.dotfiles/zsh/aliases ]] && source ~/.dotfiles/zsh/aliases
 
 # NVM (Lazy Load)
 export NVM_DIR="$HOME/.nvm"
@@ -66,33 +63,20 @@ node() { nvm current > /dev/null || nvm use default; node "$@" }
 npm() { nvm current > /dev/null || nvm use default; npm "$@" }
 npx() { nvm current > /dev/null || nvm use default; npx "$@" }
 
-# Homebrew bottles mirror (commented out for default CDN speed)
-# export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
-
-# Paths consolidation
-# OS Detection and Specific Setup
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # Architecture-aware Homebrew setup
-    if [[ $(uname -m) == "arm64" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Linux specific settings
-    # e.g., if you use oh-my-zsh, ensure the path is correct
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-fi
-
-# Load local-only configs (secrets, tokens, etc.)
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-export CODEQL_PATH="$HOME/codeql-home/codeql-repo"
-
-## aws alias
+# AWS Aliases
 alias awssso='aws sso login --sso-session vivotek'
 alias awskey='function _awskey() { eval `aws configure export-credentials --format env --profile $1` }; _awskey'
 alias awswho='aws sts get-caller-identity; aws iam list-account-aliases'
+
+# General Aliases
+alias ll='ls -alF'
+alias gs='git status'
+alias ta='tmux attach -t'
+alias tn='tmux new -s'
+alias tl='tmux ls'
+
+# --- 5. LOCAL CONFIG (SECRETS) ---
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# iTerm2 Integration
+test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_integration.zsh" || true
