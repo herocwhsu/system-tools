@@ -1,0 +1,17 @@
+set number              " Show line numbers
+set relativenumber      " Show relative line numbers (great for navigation)
+set syntax=on           " Enable syntax highlighting
+set tabstop=4           " Number of visual spaces per TAB
+set softtabstop=4       " Number of spaces in tab when editing
+set shiftwidth=4        " Number of spaces to use for autoindent
+set expandtab           " Tabs are spaces
+set autoindent          " Copy indent from current line when starting a new line
+set mouse=a             " Enable mouse usage
+set clipboard=unnamed   " Use system clipboard
+set ruler               " Show the cursor position all the time
+set showcmd             " Display incomplete commands
+set wildmenu            " Visual autocomplete for command menu
+set incsearch           " Search as characters are entered
+set hlsearch            " Highlight searches
+set cursorline          " Highlight the current line
+set background=dark     " Use colors that look good on a dark background
