@@ -48,20 +48,23 @@ fpath=($fpath /opt/homebrew/share/zsh/site-functions)
 autoload -Uz compinit && compinit
 
 # --- 4. ALIASES & FUNCTIONS ---
-# Load modular aliases if they exist
-[[ -f ~/.dotfiles/zsh/aliases ]] && source ~/.dotfiles/zsh/aliases
-
 # NVM (Lazy Load)
 export NVM_DIR="$HOME/.nvm"
 nvm() {
-  unset -f nvm node npm npx
+  unset -f nvm node npm npx gemini gemini_cli
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   nvm "$@"
 }
-node() { nvm current > /dev/null || nvm use default; node "$@" }
-npm() { nvm current > /dev/null || nvm use default; npm "$@" }
-npx() { nvm current > /dev/null || nvm use default; npx "$@" }
+
+node() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; node "$@" }
+npm() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; npm "$@" }
+npx() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; npx "$@" }
+gemini() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; gemini "$@" }
+gemini_cli() { unset -f node npm npx gemini gemini_cli; nvm current > /dev/null || nvm use default; gemini "$@" }
+
+# Aliases
+alias gemini-cli='gemini_cli'
 
 # AWS Aliases
 alias awssso='aws sso login --sso-session vivotek'
