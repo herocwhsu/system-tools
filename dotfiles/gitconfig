@@ -1,7 +1,7 @@
 # This is Git's per-user configuration file.
 [user]
-	name = hero.cw.hsu
-	email = family.joe.hero@gmail.com
+	name = hero.hsu
+	email = hero.cw.hsu@gmail.com
 [core]
 	excludesfile = /Users/herohsu/.gitignore_global
 	editor = vim
